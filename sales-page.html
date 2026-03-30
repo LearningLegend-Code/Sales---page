@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Consistency Code — Learning Legend</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&family=DM+Mono:wght@300;400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#060606;
+  --deep:#0a0a0a;
+  --card:#0f0f0f;
+  --border:#1c1c1c;
+  --gold:#c9a84c;
+  --gold-light:#e2c17a;
+  --gold-dim:#7a6130;
+  --gold-bg:#1a1508;
+  --white:#f0ede8;
+  --grey:#5a5a5a;
+  --light:#9a9488;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:'Cormorant Garamond',serif;overflow-x:hidden;line-height:1.6;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.5;}
+
+/* UTILS */
+.mono{font-family:'DM Mono',monospace;}
+.cinzel{font-family:'Cinzel',serif;}
+.bebas{font-family:'Bebas Neue',sans-serif;}
+.italic{font-style:italic;}
+.gold{color:var(--gold);}
+.grey{color:var(--grey);}
+.light{color:var(--light);}
+.center{text-align:center;}
+.w{max-width:680px;margin:0 auto;padding:0 24px;}
+.divider{width:60px;height:1px;background:var(--gold-dim);margin:0 auto;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.vis{opacity:1;transform:none;}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:80px 24px 60px;}
+
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(to right,#c9a84c06 1px,transparent 1px),linear-gradient(to bottom,#c9a84c06 1px,transparent 1px);background-size:48px 48px;}
+
+.hero-glow{position:absolute;width:700px;height:700px;background:radial-gradient(circle,#c9a84c0e 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+
+.hero-glow2{position:absolute;width:300px;height:300px;background:radial-gradient(circle,#c9a84c18 0%,transparent 70%);bottom:20%;right:10%;pointer-events:none;}
+
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;color:var(--gold);text-transform:uppercase;margin-bottom:40px;opacity:0;animation:fadeUp 0.8s ease 0.1s forwards;}
+
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,16vw,160px);line-height:0.85;letter-spacing:0.015em;text-align:center;margin-bottom:16px;opacity:0;animation:fadeUp 0.9s ease 0.3s forwards;}
+
+.hero-title .line2{color:var(--gold);display:block;}
+
+.hero-divider{width:80px;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:36px auto;opacity:0;animation:fadeUp 0.8s ease 0.5s forwards;}
+
+.hero-sub{font-size:clamp(17px,3vw,22px);font-weight:300;font-style:italic;color:var(--light);text-align:center;max-width:520px;line-height:1.6;margin-bottom:48px;opacity:0;animation:fadeUp 0.8s ease 0.7s forwards;}
+
+.hero-cta{opacity:0;animation:fadeUp 0.8s ease 0.9s forwards;display:flex;flex-direction:column;align-items:center;gap:16px;}
+
+.btn-primary{display:inline-block;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;padding:18px 48px;background:var(--gold);color:#000;text-decoration:none;font-weight:400;transition:all 0.3s;cursor:pointer;border:none;}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-1px);}
+
+.hero-note{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;color:#333;text-transform:uppercase;}
+
+.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeUp 0.8s ease 1.4s forwards;}
+.hero-scroll span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.3em;color:#333;text-transform:uppercase;}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--gold-dim),transparent);animation:pulse 2s infinite;}
+
+/* ─── PAIN SECTION ─── */
+.pain{padding:100px 24px;background:var(--deep);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+
+.section-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:block;}
+
+.pain-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,80px);line-height:0.95;margin-bottom:40px;letter-spacing:0.02em;}
+
+.pain-list{display:flex;flex-direction:column;gap:0;margin-bottom:48px;}
+
+.pain-item{display:flex;align-items:flex-start;gap:20px;padding:20px 0;border-bottom:1px solid var(--border);}
+.pain-item:first-child{border-top:1px solid var(--border);}
+
+.pain-bullet{width:6px;height:6px;background:var(--gold-dim);flex-shrink:0;margin-top:10px;}
+
+.pain-text{font-size:19px;font-style:italic;color:var(--light);line-height:1.5;}
+
+.pain-closer{font-size:20px;font-style:italic;color:var(--white);line-height:1.7;border-left:2px solid var(--gold);padding-left:24px;}
+
+/* ─── BRIDGE ─── */
+.bridge{padding:100px 24px;text-align:center;}
+
+.bridge-pre{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:var(--grey);margin-bottom:24px;}
+
+.bridge-quote{font-size:clamp(22px,4vw,38px);font-weight:300;font-style:italic;line-height:1.5;color:var(--white);max-width:600px;margin:0 auto 32px;}
+
+.bridge-quote em{color:var(--gold);font-style:normal;}
+
+.bridge-author{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.3em;color:var(--grey);text-transform:uppercase;}
+
+/* ─── PRODUCT INTRO ─── */
+.intro{padding:100px 24px;background:var(--deep);border-top:1px solid var(--border);}
+
+.intro-label{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+
+.intro-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,10vw,110px);line-height:0.88;margin-bottom:32px;letter-spacing:0.02em;}
+
+.intro-name span{color:var(--gold);}
+
+.intro-desc{font-size:19px;font-style:italic;color:var(--light);line-height:1.8;margin-bottom:40px;}
+
+.intro-pills{display:flex;flex-wrap:wrap;gap:8px;}
+
+.pill{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;padding:8px 16px;border:1px solid var(--border);color:var(--grey);}
+
+/* ─── HOW IT WORKS ─── */
+.how{padding:100px 24px;}
+
+.how-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);line-height:1;margin-bottom:56px;letter-spacing:0.02em;}
+
+.phases{display:flex;flex-direction:column;gap:2px;}
+
+.phase-row{display:grid;grid-template-columns:80px 1fr;gap:0;border:1px solid var(--border);overflow:hidden;transition:border-color 0.3s;}
+.phase-row:hover{border-color:var(--border);}
+
+.phase-num-col{display:flex;align-items:center;justify-content:center;padding:32px 16px;border-right:1px solid var(--border);}
+
+.phase-num-txt{font-family:'Bebas Neue',sans-serif;font-size:56px;line-height:1;}
+.ph0-c .phase-num-txt{color:var(--gold);}
+.ph1-c .phase-num-txt{color:#4c7fc9;}
+.ph2-c .phase-num-txt{color:#4cc97a;}
+.ph3-c .phase-num-txt{color:#c94c4c;}
+
+.phase-content-col{padding:28px 32px;}
+
+.phase-tag-sm{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:8px;}
+.ph0-c .phase-tag-sm{color:var(--gold);}
+.ph1-c .phase-tag-sm{color:#4c7fc9;}
+.ph2-c .phase-tag-sm{color:#4cc97a;}
+.ph3-c .phase-tag-sm{color:#c94c4c;}
+
+.phase-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.04em;color:var(--white);margin-bottom:8px;}
+
+.phase-desc{font-style:italic;font-size:16px;color:var(--light);line-height:1.5;margin-bottom:16px;}
+
+.phase-assets{display:flex;flex-wrap:wrap;gap:6px;}
+
+.asset-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;padding:4px 10px;border:1px solid var(--border);color:var(--grey);}
+
+/* ─── VALUE STACK ─── */
+.stack{padding:100px 24px;background:var(--deep);border-top:1px solid var(--border);}
+
+.stack-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);line-height:1;margin-bottom:12px;letter-spacing:0.02em;}
+
+.stack-sub{font-style:italic;font-size:18px;color:var(--light);margin-bottom:56px;}
+
+.stack-section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.35em;text-transform:uppercase;padding:14px 0;border-bottom:1px solid var(--border);margin-bottom:2px;}
+
+.stack-section-label.core-lbl{color:var(--gold);}
+.stack-section-label.bonus-lbl{color:#4cc97a;}
+
+.stack-item{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:18px 0;border-bottom:1px solid var(--border);}
+
+.stack-item-left{display:flex;align-items:flex-start;gap:14px;}
+
+.stack-dot{width:5px;height:5px;background:var(--gold-dim);flex-shrink:0;margin-top:8px;}
+.bonus-dot{background:#4cc97a;}
+
+.stack-item-name{font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.04em;color:var(--white);margin-bottom:4px;}
+
+.stack-item-desc{font-style:italic;font-size:15px;color:var(--grey);line-height:1.4;}
+
+.stack-value{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;color:var(--gold);white-space:nowrap;margin-top:2px;}
+
+.bonus-label{display:inline-block;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;padding:3px 8px;border:1px solid #4cc97a33;color:#4cc97a;background:#0d1a0d;margin-bottom:8px;}
+
+.total-block{margin-top:40px;border:1px solid var(--border);padding:32px;background:var(--card);}
+
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.total-row:last-child{border-bottom:none;}
+
+.total-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--grey);}
+
+.total-val{font-family:'Bebas Neue',sans-serif;font-size:32px;}
+
+.total-val.strikethrough{color:#333;text-decoration:line-through;}
+
+.total-val.price{color:var(--gold);font-size:56px;}
+
+.total-note{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;color:var(--grey);text-align:center;margin-top:16px;text-transform:uppercase;}
+
+/* ─── FOR WHO ─── */
+.forwho{padding:100px 24px;}
+
+.forwho-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:48px;}
+
+.fw-col{padding:32px;border:1px solid var(--border);background:var(--card);}
+
+.fw-head{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+
+.fw-yes .fw-head{color:var(--gold);}
+.fw-no .fw-head{color:var(--grey);}
+
+.fw-list{display:flex;flex-direction:column;gap:12px;}
+
+.fw-item{display:flex;gap:12px;font-size:16px;font-style:italic;color:var(--light);line-height:1.4;}
+
+.fw-icon{flex-shrink:0;margin-top:2px;}
+
+/* ─── GUARANTEE ─── */
+.guarantee{padding:100px 24px;background:var(--gold-bg);border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);}
+
+.g-inner{max-width:620px;margin:0 auto;text-align:center;}
+
+.g-icon{font-size:48px;margin-bottom:24px;}
+
+.g-name{font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;}
+
+.g-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,60px);letter-spacing:0.02em;line-height:1;margin-bottom:32px;color:var(--white);}
+
+.g-text{font-size:19px;font-style:italic;color:var(--light);line-height:1.8;margin-bottom:16px;}
+
+.g-sub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);}
+
+/* ─── FINAL CTA ─── */
+.cta-final{padding:120px 24px;text-align:center;position:relative;overflow:hidden;}
+
+.cta-glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,#c9a84c0d 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+
+.cta-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;}
+
+.cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,10vw,112px);line-height:0.88;letter-spacing:0.02em;margin-bottom:16px;}
+
+.cta-title span{color:var(--gold);}
+
+.cta-sub{font-size:18px;font-style:italic;color:var(--light);margin-bottom:56px;max-width:480px;margin-left:auto;margin-right:auto;}
+
+.cta-box{border:1px solid var(--border);padding:48px 40px;max-width:520px;margin:0 auto 48px;background:var(--card);position:relative;}
+
+.cta-box-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--grey);margin-bottom:24px;}
+
+.cta-price-row{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:8px;}
+
+.cta-old{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#2a2a2a;text-decoration:line-through;}
+
+.cta-new{font-family:'Bebas Neue',sans-serif;font-size:80px;color:var(--gold);line-height:1;}
+
+.cta-once{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--grey);margin-bottom:32px;}
+
+.btn-cta{display:block;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;padding:20px 48px;background:var(--gold);color:#000;text-decoration:none;text-align:center;transition:all 0.3s;cursor:pointer;border:none;width:100%;}
+.btn-cta:hover{background:var(--gold-light);}
+
+.cta-micro{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;color:#2a2a2a;text-transform:uppercase;margin-top:16px;}
+
+.included-list{display:flex;flex-direction:column;gap:8px;margin:24px 0;text-align:left;}
+
+.inc-item{display:flex;gap:12px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--grey);}
+
+.inc-check{color:var(--gold);}
+
+/* ─── FOOTER ─── */
+footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center;}
+
+.footer-brand{font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;}
+
+.footer-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.25em;color:var(--grey);text-transform:uppercase;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .forwho-grid{grid-template-columns:1fr;}
+  .phase-row{grid-template-columns:56px 1fr;}
+  .phase-num-txt{font-size:36px;}
+  .cta-box{padding:32px 24px;}
+  .cta-new{font-size:64px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <p class="hero-eyebrow">Learning Legend · Digital System</p>
+
+  <h1 class="hero-title">
+    The Consistency
+    <span class="line2">Code</span>
+  </h1>
+
+  <div class="hero-divider"></div>
+
+  <p class="hero-sub">A simple daily system to finally stop restarting, build unbreakable habits, and become disciplined — without motivation or willpower.</p>
+
+  <div class="hero-cta">
+    <a href="#get" class="btn-primary">Get Instant Access — $37</a>
+    <span class="hero-note">Instant download · 30-day guarantee · Access forever</span>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Read on</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══ PAIN ═══ -->
+<section class="pain">
+  <div class="w">
+    <span class="section-tag reveal">The Problem</span>
+    <h2 class="pain-title reveal">You've Restarted<br>More Times Than<br>You Can Count.</h2>
+
+    <div class="pain-list reveal">
+      <div class="pain-item"><div class="pain-bullet"></div><div class="pain-text">You start strong for 3–5 days. Then one bad day breaks everything — and you're back at zero.</div></div>
+      <div class="pain-item"><div class="pain-bullet"></div><div class="pain-text">You wait for motivation to arrive. It shows up occasionally. Then disappears. You can't build anything on something that unreliable.</div></div>
+      <div class="pain-item"><div class="pain-bullet"></div><div class="pain-text">You've read the books. Watched the videos. You know what to do. But knowing and doing are two completely different things.</div></div>
+      <div class="pain-item"><div class="pain-bullet"></div><div class="pain-text">Every time you restart, it gets harder. Because now you don't just have to build the habit — you have to rebuild your belief that you can do it.</div></div>
+      <div class="pain-item"><div class="pain-bullet"></div><div class="pain-text">Deep down, you're starting to wonder if discipline is just something other people have — and you don't.</div></div>
+    </div>
+
+    <p class="pain-closer reveal">That last thought is the most dangerous one. Because it's wrong. And it's exactly what this system is designed to destroy.</p>
+  </div>
+</section>
+
+<!-- ═══ BRIDGE ═══ -->
+<section class="bridge">
+  <div class="w">
+    <p class="bridge-pre reveal">The Real Reason You Keep Failing</p>
+    <p class="bridge-quote reveal">"You don't have a discipline problem.<br>You have a <em>design</em> problem.<br>Bad architecture always fails —<br>not the person living in it."</p>
+    <p class="bridge-author reveal">— The Consistency Code · Opening Manifesto</p>
+  </div>
+</section>
+
+<!-- ═══ PRODUCT INTRO ═══ -->
+<section class="intro">
+  <div class="w">
+    <div class="reveal">
+      <p class="intro-label">Introducing</p>
+      <h2 class="intro-name">The Consistency <span>Code</span></h2>
+    </div>
+    <p class="intro-desc reveal">A complete 4-phase daily operating system that installs discipline as a structure — not a feeling. Built for the man who keeps restarting and is ready to finally stop.</p>
+    <div class="intro-pills reveal">
+      <div class="pill">16 Assets</div>
+      <div class="pill">4 Phases</div>
+      <div class="pill">Interactive System</div>
+      <div class="pill">Progress Auto-Saved</div>
+      <div class="pill">Works On Any Device</div>
+      <div class="pill">Instant Access</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how">
+  <div class="w">
+    <span class="section-tag reveal">Inside The System</span>
+    <h2 class="how-title reveal">4 Phases.<br>Zero Gaps.</h2>
+
+    <div class="phases reveal">
+      <div class="phase-row ph0-c">
+        <div class="phase-num-col"><div class="phase-num-txt">0</div></div>
+        <div class="phase-content-col">
+          <div class="phase-tag-sm">Ignition</div>
+          <div class="phase-name">Kill The Old Story</div>
+          <div class="phase-desc">Reframe your entire identity before you start. Build the belief that the system can work — and that you're capable of using it.</div>
+          <div class="phase-assets">
+            <div class="asset-tag">Opening Manifesto</div>
+            <div class="asset-tag">Reframe Module</div>
+            <div class="asset-tag">Identity Blueprint</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row ph1-c">
+        <div class="phase-num-col"><div class="phase-num-txt">1</div></div>
+        <div class="phase-content-col">
+          <div class="phase-tag-sm">Foundation</div>
+          <div class="phase-name">Build The Base</div>
+          <div class="phase-desc">Restructure your environment. Choose your first habit. Get a staged 30-day plan you literally cannot fail on.</div>
+          <div class="phase-assets">
+            <div class="asset-tag">First 30 Minutes Card</div>
+            <div class="asset-tag">Environment Audit</div>
+            <div class="asset-tag">Phone Detox Setup</div>
+            <div class="asset-tag">Habit Menu</div>
+            <div class="asset-tag">30-Day Stack</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row ph2-c">
+        <div class="phase-num-col"><div class="phase-num-txt">2</div></div>
+        <div class="phase-content-col">
+          <div class="phase-tag-sm">System</div>
+          <div class="phase-name">Install The OS</div>
+          <div class="phase-desc">Build your daily operating system from morning to night. Triggers, routines, and a tracker that makes progress impossible to ignore.</div>
+          <div class="phase-assets">
+            <div class="asset-tag">Trigger Blueprint</div>
+            <div class="asset-tag">Morning Ignition</div>
+            <div class="asset-tag">Evening Close</div>
+            <div class="asset-tag">30-Day Tracker</div>
+            <div class="asset-tag">72-Hour Fast Start</div>
+            <div class="asset-tag">Recovery Stack</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row ph3-c">
+        <div class="phase-num-col"><div class="phase-num-txt">3</div></div>
+        <div class="phase-content-col">
+          <div class="phase-tag-sm">Resilience</div>
+          <div class="phase-name">Make It Unbreakable</div>
+          <div class="phase-desc">Handle failure without spiraling. Self-audit weekly. The system becomes self-correcting — it improves whether you feel good or not.</div>
+          <div class="phase-assets">
+            <div class="asset-tag">Reset Protocol</div>
+            <div class="asset-tag">Weekly Audit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VALUE STACK ═══ -->
+<section class="stack">
+  <div class="w">
+    <span class="section-tag reveal">Everything You Get</span>
+    <h2 class="stack-title reveal">Your Complete<br>Value Stack</h2>
+    <p class="stack-sub reveal italic light">Every asset. Every value. Nothing hidden.</p>
+
+    <!-- Core -->
+    <div class="stack-section-label core-lbl reveal">✦ Core Offer — The Consistency Code System</div>
+
+    <div class="reveal">
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Opening Manifesto + Reframe Module</div><div class="stack-item-desc">Destroy the wrong belief about discipline. Understand exactly why you failed before.</div></div></div><div class="stack-value">$9</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Identity Blueprint Template</div><div class="stack-item-desc">Define who you are becoming. Sign the commitment. The foundation everything else is built on.</div></div></div><div class="stack-value">$27</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Your First 30 Minutes Card</div><div class="stack-item-desc">Zero decisions. Open, read, execute. System starts in the first 30 minutes.</div></div></div><div class="stack-value">$17</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Environment Audit Checklist</div><div class="stack-item-desc">Restructure your physical and digital space so the environment works for you, not against you.</div></div></div><div class="stack-value">$17</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">High-Leverage Habit Menu</div><div class="stack-item-desc">The 6 highest-impact habits ranked. Pick one. Start correctly. Skip months of trial and error.</div></div></div><div class="stack-value">$19</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">30-Day Habit Stack Template</div><div class="stack-item-desc">One habit per week. Staged rollout so the system never collapses under its own weight.</div></div></div><div class="stack-value">$19</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Habit Trigger Blueprint</div><div class="stack-item-desc">Replace motivation with If/Then triggers that fire automatically — no feeling required.</div></div></div><div class="stack-value">$27</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Morning Ignition Card</div><div class="stack-item-desc">15 minutes. Every morning. The single most important ritual in the system.</div></div></div><div class="stack-value">$17</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">Evening Close Card</div><div class="stack-item-desc">10 minutes every night. Close the day deliberately. Build momentum you wake up with.</div></div></div><div class="stack-value">$17</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot"></div><div><div class="stack-item-name">30-Day Interactive Tracker</div><div class="stack-item-desc">Green or red. Every day. Progress auto-saved. No lying to yourself. No blank days.</div></div></div><div class="stack-value">$27</div></div>
+    </div>
+
+    <!-- Bonuses -->
+    <div class="stack-section-label bonus-lbl reveal" style="margin-top:32px;">🎁 Bonus Stack — Included Free</div>
+
+    <div class="reveal">
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot bonus-dot"></div><div><div class="bonus-label">Bonus 1</div><div class="stack-item-name">Phone Detox Setup Checklist</div><div class="stack-item-desc">One-time 15-minute setup. Permanent reduction in your biggest daily distraction.</div></div></div><div class="stack-value">$19</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot bonus-dot"></div><div><div class="bonus-label">Bonus 2</div><div class="stack-item-name">72-Hour Fast Start Checklist</div><div class="stack-item-desc">Build real momentum in 3 days before doubt has a chance to appear.</div></div></div><div class="stack-value">$27</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot bonus-dot"></div><div><div class="bonus-label">Bonus 3</div><div class="stack-item-name">Recovery Stack</div><div class="stack-item-desc">The sleep protocol that decides tomorrow's discipline output before today even ends.</div></div></div><div class="stack-value">$29</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot bonus-dot"></div><div><div class="bonus-label">Bonus 4</div><div class="stack-item-name">The Reset Protocol</div><div class="stack-item-desc">Miss a day without quitting. Back on track within 60 minutes. Never miss twice.</div></div></div><div class="stack-value">$37</div></div>
+      <div class="stack-item"><div class="stack-item-left"><div class="stack-dot bonus-dot"></div><div><div class="bonus-label">Bonus 5</div><div class="stack-item-name">Weekly Discipline Audit</div><div class="stack-item-desc">10 minutes every Sunday. The system improves itself. Compounds every single week.</div></div></div><div class="stack-value">$29</div></div>
+    </div>
+
+    <!-- Total -->
+    <div class="total-block reveal">
+      <div class="total-row"><span class="total-lbl">Total Real Value</span><span class="total-val strikethrough">$317</span></div>
+      <div class="total-row"><span class="total-lbl">Your Price Today</span><span class="total-val price">$37</span></div>
+      <p class="total-note">One payment. Lifetime access. No subscription.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOR WHO ═══ -->
+<section class="forwho">
+  <div class="w">
+    <span class="section-tag reveal">Is This For You?</span>
+    <h2 class="how-title reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);line-height:1;letter-spacing:0.02em;">Be Honest<br>With Yourself.</h2>
+
+    <div class="forwho-grid reveal">
+      <div class="fw-col fw-yes">
+        <div class="fw-head">✦ This is for you if...</div>
+        <div class="fw-list">
+          <div class="fw-item"><span class="fw-icon">→</span><span>You're tired of restarting. You want to build something that actually holds.</span></div>
+          <div class="fw-item"><span class="fw-icon">→</span><span>You're willing to follow a system, even when you don't feel like it.</span></div>
+          <div class="fw-item"><span class="fw-icon">→</span><span>You understand that real change comes from daily structure, not inspiration.</span></div>
+          <div class="fw-item"><span class="fw-icon">→</span><span>You want to become the most consistent version of yourself — quietly and without performance.</span></div>
+        </div>
+      </div>
+      <div class="fw-col fw-no">
+        <div class="fw-head">— This is NOT for you if...</div>
+        <div class="fw-list">
+          <div class="fw-item"><span class="fw-icon" style="color:#333;">→</span><span>You're looking for motivation. This system runs without it — by design.</span></div>
+          <div class="fw-item"><span class="fw-icon" style="color:#333;">→</span><span>You want overnight transformation. This builds slowly and permanently.</span></div>
+          <div class="fw-item"><span class="fw-icon" style="color:#333;">→</span><span>You're not willing to do the 15-minute morning routine. That's the minimum.</span></div>
+          <div class="fw-item"><span class="fw-icon" style="color:#333;">→</span><span>You're looking for hacks. There are none here. Only systems.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GUARANTEE ═══ -->
+<section class="guarantee">
+  <div class="g-inner">
+    <div class="g-icon reveal">⚖️</div>
+    <p class="g-name reveal">The Full Clarity Guarantee</p>
+    <h2 class="g-title reveal">You Either Feel<br>The Difference.<br>Or You Pay Nothing.</h2>
+    <p class="g-text reveal">If you open The Consistency Code and don't feel like you finally have a real, clear system — for any reason — email me within 30 days for a full refund. No questions asked. No forms. No hard feelings.</p>
+    <p class="g-text reveal">And if you ever feel stuck inside the system, DM me directly. I'll help you personally identify what's breaking down and tell you exactly what to fix.</p>
+    <p class="g-sub reveal">30-day refund · Personal DM support · Zero risk</p>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ═══ -->
+<section class="cta-final" id="get">
+  <div class="cta-glow"></div>
+  <div class="w" style="position:relative;z-index:1;">
+    <p class="cta-tag reveal">One Decision Away</p>
+    <h2 class="cta-title reveal">Stop Restarting.<br><span>Start Building.</span></h2>
+    <p class="cta-sub reveal italic">The man you want to become is built one consistent day at a time. Today is day one.</p>
+
+    <div class="cta-box reveal">
+      <p class="cta-box-label">The Consistency Code — Full System</p>
+
+      <div class="included-list">
+        <div class="inc-item"><span class="inc-check">✦</span><span>10 Core Assets across 4 Phases</span></div>
+        <div class="inc-item"><span class="inc-check">✦</span><span>5 Free Bonuses including Reset Protocol</span></div>
+        <div class="inc-item"><span class="inc-check">✦</span><span>Interactive tracker with auto-saved progress</span></div>
+        <div class="inc-item"><span class="inc-check">✦</span><span>Works on phone, tablet, and desktop</span></div>
+        <div class="inc-item"><span class="inc-check">✦</span><span>Lifetime access — yours forever</span></div>
+        <div class="inc-item"><span class="inc-check">✦</span><span>30-day no-questions refund guarantee</span></div>
+      </div>
+
+      <div class="cta-price-row">
+        <div class="cta-old">$317</div>
+        <div class="cta-new">$37</div>
+      </div>
+      <p class="cta-once mono grey" style="font-size:9px;letter-spacing:0.2em;text-align:center;margin-bottom:24px;">ONE TIME PAYMENT · NO SUBSCRIPTION</p>
+
+      <a href="#" class="btn-cta">Get Instant Access Now</a>
+      <p class="cta-micro">Secure checkout · Instant delivery · 30-day guarantee</p>
+    </div>
+
+    <p class="reveal italic light center" style="font-size:17px;max-width:480px;margin:0 auto;">Every day you wait is another day you explain to yourself why you'll start tomorrow.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-brand">Learning Legend</p>
+  <p class="footer-tag">Grow Daily · Think Deep · Become a Legend</p>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){ e.target.classList.add('vis'); obs.unobserve(e.target); }
+  });
+}, {threshold: 0.08});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
